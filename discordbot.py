@@ -1,21 +1,49 @@
-from discord.ext import commands
-from os import getenv
-import traceback
+import discord
+import requests
+import json
 
-bot = commands.Bot(command_prefix='/')
+intents = discord.Intents.default()
+intents.members = True
+client = discord.Client(intents=intents)
+TOKEN = 'OTY1MDg3MjIzODQwMTM3MjQ2.YluFhA.h-JJ9wd1_cf698jABJn7uUdkQVg'
 
+@client.event
+async def on_ready():
+    print(f'We have logged in as {client.user}')
 
-@bot.event
-async def on_command_error(ctx, error):
-    orig_error = getattr(error, "original", error)
-    error_msg = ''.join(traceback.TracebackException.from_exception(orig_error).format())
-    await ctx.send(error_msg)
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
 
+    if client.user in message.mentions:
+        await message.channel.send("逆翻訳します。")
+        api_url = "https://script.google.com/macros/s/AKfycbwINFoYS0KfVRc_snYCRVGW9EdE56hCNgr1GQ4Vi--l3zH8U-c/exec"
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send('pong')
+        def trans(data, s_lang , t_lang):
+            params = {
+            'text': data,
+            'source': s_lang,
+            'target': t_lang
+            }
 
+            r_data = requests.post(api_url, data=params)
+            j_data = json.loads(str(r_data.text))
+            
+            return j_data["text"]
 
-token = getenv('DISCORD_BOT_TOKEN')
-bot.run(token)
+        mess = message.content.replace('<@965087223840137246>', '')
+        print(mess)
+        trans_data = mess
+        print("入れたよ")
+        trans_data = trans(trans_data,"ja" , "am")
+        trans_data = trans(trans_data,"am" , "ja")
+        trans_data = trans(trans_data,"ja" , "lo")
+        trans_data = trans(trans_data,"lo" , "am")
+        trans_data = trans(trans_data,"am" , "lo")
+        trans_data = trans(trans_data,"lo" , "ja")
+
+        await message.channel.send(mess + " \n ⇓ \n " + trans_data)
+        
+    
+client.run(TOKEN)
