@@ -5,7 +5,7 @@ import json
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
-TOKEN = 'OTY1MDg3MjIzODQwMTM3MjQ2.YluFhA.h-JJ9wd1_cf698jABJn7uUdkQVg'
+TOKEN = 'TOOOOOOOOOOOKEN'
 
 @client.event
 async def on_ready():
